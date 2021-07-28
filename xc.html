@@ -42,7 +42,6 @@
       position: relative;top:-10px;
     }
     </style>
-    </style>
     <script type="text/javascript" src="http://api.map.baidu.com/api?type=webgl&v=1.0&ak=48Roq20p72HfZGhxnKm3BPE8mK4ZCtzc"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/gl/src/LuShu_min.js"></script>
     <!-- <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script> -->
@@ -57,6 +56,9 @@
 
 <body>
     <div id="allmap">
+      <div style="padding:8px 16px;">
+        请选择日期：<input class="xc-now" type="date"  style="display: inline-block;" />
+      </div>
       <div>
         <div v-for="(item,index) in rows" style="padding: 8px" :key="index">
           <div v-for="(sub,sindex) in item" :key="sindex" class="xc-group">
@@ -79,6 +81,9 @@
 </html>
 <script type="text/javascript">
   var now = getNowFormatDate();
+  console.log('now',now,$('.xc-now'))
+  $('.xc-now').attr('value',now);
+
   var imei = window.location.href.split('imei=')[1];
   var app = new Vue({
     el: '#allmap',
@@ -91,7 +96,7 @@
       this.main();
     },
     methods:{
-      main(){
+      main(time){
         var that = this;
         $.ajax({ 
           url: "http://www.huatiexft.com:8070/eqplapp2/login.do", 
@@ -107,8 +112,8 @@
             sessionStorage.setItem('__user_session',data.success)
             sessionStorage.setItem('_userInfo',JSON.stringify(data))
             let param = {
-              startTime:now + ' 00:00:00',
-              endTime:now + ' 23:59:59',
+              startTime:time?time:now + ' 00:00:00',
+              endTime:time?time:now + ' 23:59:59',
               imei:imei
             };
             that.initXC(param)
@@ -170,6 +175,12 @@
       }
     }
   })
+  $('.xc-now').on('input',function(e){
+    var changeValue = $(e.currentTarget).val;
+    $('.xc-now').attr('value',changeValue);
+    debugger
+    app.main(changeValue)
+  });
  
 function getNowFormatDate() {
   var date = new Date();
