@@ -252,8 +252,8 @@ function initAllCars(data){
   var point = new BMapGL.Point(data.data[0].lng, data.data[0].lat);
   map.centerAndZoom(point, 7);
   // 创建小车图标
-  var carImg = new BMapGL.Icon("https://lbsyun.baidu.com/jsdemo/img/car.png", new BMapGL.Size(26, 13));
-  var automobile = new BMapGL.Icon(fly, new BMapGL.Size(26, 13));
+    var carImg = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/car0.png", new BMapGL.Size(26, 13));
+  var automobile = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/car1.png", new BMapGL.Size(26, 13));
   // 创建Marker标注，使用小车图标
   window._allCars = data.data;
   data.data.forEach(item => {
@@ -352,7 +352,7 @@ function initGJ(data) {
         lushu = new BMapGLLib.LuShu(map, polyline.getPath(), {
             geodesic: true,
             autoCenter: true,
-            icon: new BMapGL.Icon(fly, new BMapGL.Size(48, 48), { anchor: new BMapGL.Size(24, 24) }),
+            icon: new BMapGL.Icon('http://daka.xixiaoli.com/webgl/car0.png', new BMapGL.Size(48, 48), { anchor: new BMapGL.Size(24, 24) }),
             speed: 10000,
             enableRotation: true
         });
