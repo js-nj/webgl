@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+    body,
+    html,
+    #allmap {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        margin: 0;
+        font-family: "微软雅黑";
+    }
+
+    #allmap {
+        width: 100%;
+        height: 400px;
+    }
+    .tab-row {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    #navtab1 {
+      border-bottom: none !important;
+      border-left: none !important;
+      border-right: none !important;
+    }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?type=webgl&v=1.0&ak=48Roq20p72HfZGhxnKm3BPE8mK4ZCtzc"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/gl/src/LuShu_min.js"></script>
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script> -->
+    <link href="./lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <script src="./lib/jquery/jquery-1.3.2.min.js" type="text/javascript"></script>
+    <script src="./lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="./lib/ligerUI/js/ligerui.all.js" type="text/javascript"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <title>车辆轨迹</title>
+</head>
+
+<body>
+    <div id="allmap"></div>
+    <div id="navtab1" style="width: 100%;overflow:hidden; border:1px solid #A3C0E8; ">
+        <div tabid="home" title="今天" lselected="true" style="height:100px">
+          <div class="tab-row">开始时间： <span class="startTime"></span></div>
+          <div class="tab-row">结束时间: <span class="endTime"></span></div>
+          <!-- <div class="tab-row">开始时间： <input class="startTime" type="date"  /></div>
+          <div class="tab-row">结束时间: <input class="endTime" type="date" /></div> -->
+          <div class="tab-row">车子：<span class="car_num"></span></div>
+        </div>
+        <div title="昨天">
+          <div class="tab-row">开始时间： <span class="startTime"></span></div>
+          <div class="tab-row">结束时间: <span class="endTime"></span></div>
+          <!-- <div class="tab-row">开始时间： <input class="startTime" type="date"  /></div>
+          <div class="tab-row">结束时间: <input class="endTime" type="date" /></div> -->
+          <div class="tab-row">车子：<span class="car_num"></span></div>
+        </div>
+        <div title="本周">
+          <div class="tab-row">开始时间： <span class="startTime"></span></div>
+          <div class="tab-row">结束时间: <span class="endTime"></span></div>
+          <!-- <div class="tab-row">开始时间： <input class="startTime" type="date"  /></div>
+          <div class="tab-row">结束时间: <input class="endTime" type="date" /></div> -->
+          <div class="tab-row">车子：<span class="car_num"></span></div>
+           <!--  <div id="Div1" style="margin:10px;height:100px;">我的主页3</div> -->
+        </div>
+        <div title="上周">
+          <div class="tab-row">开始时间： <span class="startTime"></span></div>
+          <div class="tab-row">结束时间: <span class="endTime"></span></div>
+          <!-- <div class="tab-row">开始时间： <input class="startTime" type="date"  /></div>
+          <div class="tab-row">结束时间: <input class="endTime" type="date" /></div> -->
+          <div class="tab-row">车子：<span class="car_num"></span></div>
+        </div>
+    </div>
+    <!-- <div style="">
+      <button style="margin:0 auto;display: block" class="commit">确定</button>
+    </div> -->
+</body>
+
+</html>
+<script type="text/javascript">
+  var now = getNowFormatDate();
+  var imei = window.location.href.split('imei=')[1].split('&deviceName')[0];
+  $('.car_num').text(imei);
+  $('.startTime').text(now)
+  $('.endTime').text(now)
+  // $('.startTime').attr('value',now).attr('readonly',true)
+  // $('.endTime').attr('value',now).attr('readonly',true)
+  $('.commit').click(function(){
+    initGJPage({
+      startTime:$('.startTime').text(),
+      endTime:$('.endTime').text(),
+      imei:imei
+    })
+  });
+  var that = this;
+  if(sessionStorage.getItem('__user_session')){
+  	let param = {
+  	  startTime:now + ' 00:00:00',
+  	  endTime:now + ' 23:59:59',
+  	  imei:imei
+  	};
+  	initGJPage(param)
+  }else {
+	  $.ajax({
+	    url: "http://www.huatiexft.com:8070/eqplapp2/login.do", 
+	    type:'post',
+	    dataType:'json',
+	    contentType:'application/json',
+	    data:JSON.stringify({"user_code":"陈李强辉","password":123456,"loginType":"20"}),
+	    xhrFields: {
+	      withCredentials: true //允许跨域带Cookie
+	    },
+	    success: function(data){
+	      // ?__user_session=738CB5F330B7F0A538A22F8CD30977A6
+	      sessionStorage.setItem('__user_session',data.success)
+	      sessionStorage.setItem('_userInfo',JSON.stringify(data))
+	      let param = {
+	        startTime:now + ' 00:00:00',
+	        endTime:now + ' 23:59:59',
+	        imei:imei
+	      };
+	      initGJPage(param)
+	    }
+	  });
+  }
+  
+
+
+
+$("#navtab1").ligerTab({
+  onAfterSelectTabItem:function(tabid){
+    switch(tabid){
+      case 'home':
+        var param1 = {
+          startTime:now + ' 00:00:00',
+          endTime:now + ' 23:59:59',
+          imei:imei
+        };
+        break;
+      case 'tabitem1':
+        let yesterday = getYesterday();
+        var param1 = {
+          startTime:yesterday + ' 00:00:00',
+          endTime:yesterday + ' 23:59:59',
+          imei:imei
+        };
+        break;
+      case 'tabitem2':
+        let nowWeek = getCurrentWeek();
+        var param1 = {
+          startTime:nowWeek[0] + ' 00:00:00',
+          endTime:nowWeek[1] + ' 23:59:59',
+          imei:imei
+        };
+        break;
+      case 'tabitem3':
+        let lastWeek = getLastWeek();
+        var param1 = {
+          startTime:lastWeek[0] + ' 00:00:00',
+          endTime:lastWeek[1] + ' 23:59:59',
+          imei:imei
+        };
+        break;
+    }
+    $('.startTime','[tabid='+tabid+']').text(param1.startTime.split(' ')[0])
+    $('.endTime','[tabid='+tabid+']').text(param1.endTime.split(' ')[0])
+    // $('.startTime','[tabid='+tabid+']').attr('value',param1.startTime.split(' ')[0]).attr('readonly',true)
+    // $('.endTime','[tabid='+tabid+']').attr('value',param1.endTime.split(' ')[0]).attr('readonly',true)
+    initGJPage(param1)
+    console.log('tabid',tabid)
+    // alert('onBeforeSelectTabItem'+tabid); 
+  }
+});
+
+function getNowFormatDate() {
+  var date = new Date();
+  var seperator1 = "-";
+  var year = date.getFullYear();
+  var month = date.getMonth() + 1;
+  var strDate = date.getDate();
+  if (month >= 1 && month <= 9) {
+      month = "0" + month;
+  }
+  if (strDate >= 0 && strDate <= 9) {
+      strDate = "0" + strDate;
+  }
+  var currentdate = year + seperator1 + month + seperator1 + strDate;
+  return currentdate;
+}
+
+function getYesterday(){
+  var day1 = new Date();
+  day1.setTime(day1.getTime()-24*60*60*1000);
+  let month = (day1.getMonth()+1);
+  let strDate = day1.getDate();
+  if (month >= 1 && month <= 9) {
+      month = "0" + month;
+  }
+  if (strDate >= 0 && strDate <= 9) {
+      strDate = "0" + strDate;
+  }
+  var s1 = day1.getFullYear()+"-" + month + "-" + strDate;
+  return s1
+}
+
+function getCurrentWeek() {
+    //起止日期数组 
+    var startStop = new Array();
+    //获取当前时间 
+    var currentDate = new Date();
+    //返回date是一周中的某一天 
+    var week = currentDate.getDay();
+    //返回date是一个月中的某一天 
+    var month = currentDate.getDate();
+
+    //一天的毫秒数 
+    var millisecond = 1000 * 60 * 60 * 24;
+    //减去的天数 
+    var minusDay = week != 0 ? week - 1 : 6;
+    //alert(minusDay); 
+    //本周 周一 
+    var monday = new Date(currentDate.getTime() - (minusDay * millisecond));
+    //本周 周日 
+    var sunday = new Date(monday.getTime() + (6 * millisecond));
+
+    let month1 = (monday.getMonth() + 1);
+    let strDate1 = monday.getDate();
+    if (month1 >= 1 && month1 <= 9) {
+        month1 = "0" + month1;
+    }
+    if (strDate1 >= 0 && strDate1 <= 9) {
+        strDate1 = "0" + strDate1;
+    }
+    let month2 = (sunday.getMonth() + 1);
+    let strDate2 = sunday.getDate();
+    if (month2 >= 1 && month2 <= 9) {
+        month2 = "0" + month2;
+    }
+    if (strDate2 >= 0 && strDate2 <= 9) {
+        strDate2 = "0" + strDate2;
+    }
+    //添加本周时间 
+    startStop.push(monday.getFullYear() +'-' +month1 +'-' +strDate1); //本周起始时间 
+    //添加本周最后一天时间 
+    startStop.push(sunday.getFullYear() +'-' +month2 +'-' +strDate2); //本周终止时间 
+    //返回 
+    return startStop;
+};
+
+function getLastWeek(){
+  //起止日期数组 
+  var startStop = new Array();
+  let myDate = new Date(new Date().getTime() - 7 * 24 * 3600 * 1000)
+  let day = myDate.getDay()
+  let time = myDate.getDate() - day + (day === 0 ? -6 : 1)
+  let startTime = new Date(myDate.setDate(time))
+  let endTime = new Date(myDate.setDate(time + 6))
+
+  let month1 = (startTime.getMonth() + 1);
+  let strDate1 = startTime.getDate();
+  if (month1 >= 1 && month1 <= 9) {
+      month1 = "0" + month1;
+  }
+  if (strDate1 >= 0 && strDate1 <= 9) {
+      strDate1 = "0" + strDate1;
+  }
+  let month2 = (endTime.getMonth() + 1);
+  let strDate2 = endTime.getDate();
+  if (month2 >= 1 && month2 <= 9) {
+      month2 = "0" + month2;
+  }
+  if (strDate2 >= 0 && strDate2 <= 9) {
+      strDate2 = "0" + strDate2;
+  }
+  
+  startDateTime =startTime.getFullYear() +'-' +month1 +'-' +strDate1
+  endDateTime =endTime.getFullYear() +'-' +month2 +'-' +strDate2
+  startStop.push(startDateTime)
+  startStop.push(endDateTime)
+  return startStop;
+}
+function initGJPage(param){
+    $.ajax({ 
+    // url: "http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCurrentPosition.do", 
+    url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getAtteTrack.do?imei="+param.imei+"&startTime="+param.startTime+"&endTime="+param.endTime+"&__user_session="+sessionStorage.getItem('__user_session'),
+    // url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getAtteTrack.do?imei=868120251189699&startTime=2021-07-14 10:00:01&endTime=2021-07-14 11:25:01",
+    // url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCarList.do",
+    type:'get',
+    // dataType:'json',
+    contentType:'application/json',
+    // crossDomain: true,
+    data:{},
+    xhrFields: {
+      withCredentials: true
+    },
+    success: function(data){
+      if(data){
+        try {
+          let tmpdata = JSON.parse(data);
+          console.log('tmpdata',tmpdata)
+          initGJ(tmpdata)
+        } catch (err){
+          $.ligerDialog.error('暂无数据')
+        }
+      }else {
+        $.ligerDialog.error('暂无数据')
+      }
+    }
+  });
+}
+function initGJ(data) {
+    var path = [];
+    data.data.forEach(item => {
+        let tmp = new BMapGL.Point(item.lng, item.lat);
+        path.push(tmp);
+    });
+    var map = new BMapGL.Map("allmap");
+    var point = new BMapGL.Point(data.data[0].lng, data.data[0].lat);
+    map.centerAndZoom(point, 13);
+    map.enableScrollWheelZoom();
+
+    function startLushu() {
+        lushu = new BMapGLLib.LuShu(map, polyline.getPath(), {
+            geodesic: true,
+            autoCenter: true,
+            icon: new BMapGL.Icon('http://daka.xixiaoli.com/webgl/img/car0.png', new BMapGL.Size(48, 48), { anchor: new BMapGL.Size(24, 24) }),
+            speed: 10000,
+            enableRotation: true
+        });
+        setTimeout('lushu.start()', 1000);
+    }
+    var polyline = new BMapGL.Polyline(path, {
+        clip: false,
+        geodesic: true,
+        strokeWeight: 3
+    });
+    map.addOverlay(polyline);
+    startLushu();
+}
+</script>
