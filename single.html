@@ -17,7 +17,7 @@
 
     #allmap {
         width: 100%;
-        height: 400px;
+        height: calc(100vh - 160px);
     }
     .s-row {
       padding: 4px;
@@ -28,6 +28,31 @@
     .s-row-100 {
       width:calc(100% - 8px);
     }
+	.BMapLabel {
+		border-radius: 4px;
+	}
+	.s-button {
+		display: inline-block;
+		vertical-align: top;
+		margin-right: 8px;
+		padding: 4px 8px;
+		border-radius: 16px;
+		background-color: #409eff;
+		color: #fff;
+	}
+	.s-tags >label {
+		display: inline-block;
+		vertical-align: baseline;
+		padding: 0 8px;
+		border-right:solid 1px #ddd;
+		margin:8px 0;
+	}
+	.s-tags >label:first-child {
+		padding-left: 0;
+	}
+	.s-tags >label:last-child {
+		border-right:none;
+	}
     </style>
     <script type="text/javascript" src="http://api.map.baidu.com/api?type=webgl&v=1.0&ak=48Roq20p72HfZGhxnKm3BPE8mK4ZCtzc"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/gl/src/LuShu_min.js"></script>
@@ -44,8 +69,36 @@
 <body>
     <div id="allmap"></div>
     <!-- <div>单车车辆定位图</div> -->
-    <div id="single" style="margin-top:8px;">
-      <div class="s-row">
+    <div id="single" style="padding:8px 16px;">
+		<div>
+			<label style="font-size: 16px;">{{deviceName}}</label>    
+			<!-- <span style="color:red;display: inline-block;padding-left: 8px;vertical-align: text-bottom;">静止37分钟</span> -->
+		</div>
+		<div class="s-tags">
+			<label>{{status == '1'?'熄火':'运行'}}</label>
+			<label>{{speed}}km/h</label>
+			<label>{{posType == 'GPS'?'卫星定位:'+gpsNum:'其他定位'}}</label>
+			<label>{{activationFlag == '1'?'电源已接通':'电源未接通'}}</label>
+		</div>
+		<div style="padding: 4px 0;">
+			<img src="http://daka.xixiaoli.com/webgl/img/distance.png" style="width:16px;height:16px;" />
+			<span style="vertical-align: top;">{{gpsTime}}</span>
+		</div>
+		<div style="padding: 4px 0;">
+			<img src="http://daka.xixiaoli.com/webgl/img/xintiao.png" style="width:16px;height:16px;" />
+			<span style="vertical-align: top;">{{hbTime}}</span>
+		</div>
+		<div style="padding-top: 8px;">
+			<div class="s-button s_gj">
+				<img src="http://daka.xixiaoli.com/webgl/img/guiji.png" style="width:16px;height:16px;" />
+				<span style="vertical-align: top;">轨迹</span>
+			</div>
+			<div class="s-button s_xc">
+				<img src="http://daka.xixiaoli.com/webgl/img/xingcheng.png" style="width:16px;height:16px;" />
+				<span style="vertical-align: top;">行程</span>
+			</div>
+		</div>
+      <!-- <div class="s-row">
         <span>车牌号：</span>
         <span>{{deviceName}}</span>
       </div>
@@ -80,7 +133,7 @@
       <div class="s-row">
         <span>方向：</span>
         <span>{{direction}}</span>
-      </div>
+      </div> -->
       
       <!-- "hbTime": "2021-07-13 17:13:06",
       "lng": 118.87283670027384,
@@ -102,10 +155,10 @@
       "direction": "7",
       "mileage": "6063109.431166594" -->
     </div>
-    <div style="padding: 8px">
+    <!-- <div style="padding: 8px">
       <button class="s_gj">轨迹</button>
       <button class="s_xc">行程</button>
-    </div>
+    </div> -->
 </body>
 
 </html>

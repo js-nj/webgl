@@ -52,6 +52,18 @@
 				padding-top: 10px;
 				/* position: relative;top:-10px; */
 			}
+			.xc-day {
+				display: inline-block;
+				vertical-align: top;
+				height: 42px;
+				width:42px;
+				line-height: 42px;
+				text-align: center;
+				/* padding: 4px; */
+			}
+			.xc-day-select {
+				color:rgb(64, 158, 255);
+			}
 		</style>
 		<script type="text/javascript"
 			src="http://api.map.baidu.com/api?type=webgl&v=1.0&ak=48Roq20p72HfZGhxnKm3BPE8mK4ZCtzc"></script>
@@ -79,8 +91,22 @@
 				</div>
 			</div>
 			<div style="padding:8px 16px;">
-				请选择日期：<input class="xc-now" type="date" style="display: inline-block;" />
+				<div>
+					<!-- 请选择日期：<input class="xc-now" type="date" style="display: inline-block;" /> -->
+					<div style="text-align: center;display: inline-block;padding: 4px;">
+						{{year}}年<br>
+						{{month}}月
+					</div>
+					<div style="overflow: auto;display: inline-block;vertical-align: top;width: calc(100% - 52px);">
+						<div  :style="{width:iwidth}">
+							<div v-for="(item,index) in days" :class="{'xc-day':true,'xc-day-select':item.select}" :key="index" @click="handleDay(item,index)">
+								{{item.val}}
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
+			
 			<div>
 				<div v-for="(item,index) in rows" style="padding: 8px" :key="index">
 					<div v-for="(sub,sindex) in item" :key="sindex" class="xc-group">
@@ -125,24 +151,56 @@
 			rows: [],
 			locationNames: [],
 			imei: '',
-			deviceName: ''
+			deviceName: '',
+			year:'2021',
+			month:'7',
+			day:'1',
+			days:[],
+			iwidth:''
 		},
 		created() {
-
-		},
-		mounted() {
 			var that = this;
 			this.main();
-			$('.xc-now').on('input', function(e) {
-				var changeValue = $(e.currentTarget).val();
-				$('.xc-now').attr('value', changeValue);
-				// debugger
-				that.main(changeValue)
-			});
+			// $('.xc-now').on('input', function(e) {
+			// 	var changeValue = $(e.currentTarget).val();
+			// 	$('.xc-now').attr('value', changeValue);
+			// 	// debugger
+			// 	that.main(changeValue)
+			// });
 			this.imei = window.location.href.split('imei=')[1].split('&deviceName=')[0];
 			this.deviceName = decodeURI(window.location.href.split('imei=')[1].split('&deviceName=')[1])
+			this.getDaysArr()
+		},
+		mounted() {
+			
 		},
 		methods: {
+			handleDay(item,index){
+				this.days.forEach(sub=>{
+					if(sub.val == item.val){
+						sub.select = true
+					}else {
+						sub.select = false
+					}
+				});
+				let timeStr = this.year +'-'+ (this.month<=9?'0'+this.month:this.month)+'-'+(item.val<=9?'0'+item.val:item.val)
+				this.main(timeStr)
+			},
+			getDaysArr(){
+				this.year = new Date().getFullYear()
+				this.month = new Date().getMonth()+1
+				this.day = new Date().getDate()
+				// this.days 
+				let length = new Date(this.year, this.month, 0).getDate();
+				for (var i = length ; i>0 ; i--) {
+					let obj = {
+						val:i,
+						select:this.day == i ?true:false
+					}
+					this.days.push(obj)
+				}
+				this.iwidth = 42 * (length) + 'px'
+			},
 			handleImg(num) {
 				if (num == 0) {
 					return 'http://daka.xixiaoli.com/webgl/img/start.png'
@@ -154,8 +212,8 @@
 				var that = this;
 				if (sessionStorage.getItem('__user_session')) {
 					let param = {
-						startTime: time ? time : now + ' 00:00:00',
-						endTime: time ? time : now + ' 23:59:59',
+						startTime: time ? time + ' 00:00:00': now + ' 00:00:00',
+						endTime: time ? time + ' 23:59:59': now + ' 23:59:59',
 						imei: this.imei
 					};
 					that.initXC(param)
@@ -178,8 +236,8 @@
 							sessionStorage.setItem('__user_session', data.success)
 							sessionStorage.setItem('_userInfo', JSON.stringify(data))
 							let param = {
-								startTime: time ? time : now + ' 00:00:00',
-								endTime: time ? time : now + ' 23:59:59',
+								startTime: time ? time +' 00:00:00' : now + ' 00:00:00',
+								endTime: time ? time + ' 23:59:59': now + ' 23:59:59',
 								imei: imei
 							};
 							that.initXC(param)

@@ -106,6 +106,16 @@
 		var map = new BMapGL.Map('allmap');
 		var point = new BMapGL.Point(data.data[0].lng, data.data[0].lat);
 		map.centerAndZoom(point, 7);
+		map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+		var zoomCtrl = new BMapGL.ZoomControl();  // 添加比例尺控件
+		map.addControl(zoomCtrl);
+		// map.addControl(new BMapGL.NavigationControl(
+		//     {
+		//         type : BMAP_NAVIGATION_CONTROL_ZOOM, //缩放控件类型 仅包含缩放按钮
+		//         anchor : BMAP_ANCHOR_BOTTOM_RIGHT, //右下角
+		//         offset : new BMapGL.Size(10,10) //进一步控制缩放按钮的水平竖直偏移量
+		//     }
+		// ));
 		// 创建小车图标
 		var carImg = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/img/car0.png", new BMapGL.Size(26, 13));
 		var automobile = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/img/car1.png", new BMapGL.Size(26, 13));
@@ -163,6 +173,7 @@
 					try {
 						let tmpdata = JSON.parse(data);
 						console.log('initAllCars', tmpdata)
+						localStorage.setItem('cars',JSON.stringify(tmpdata.data))
 						initAllCars(tmpdata)
 					} catch (err) {
 						$.ligerDialog.error('暂无数据')
@@ -203,6 +214,7 @@
 
 	function initGJ(data) {
 		var path = [];
+		
 		data.data.forEach(item => {
 			let tmp = new BMapGL.Point(item.lng, item.lat);
 			path.push(tmp);
