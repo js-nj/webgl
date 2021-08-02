@@ -4,6 +4,13 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<script src="http://cdn.bootcss.com/vConsole/3.3.0/vconsole.min.js"></script>
+  <script>new VConsole()</script>
+  <style>
+    #__vconsole .vc-switch {
+      bottom:60px !important;
+    }
+	</style>
 		<style type="text/css">
 			body,
 			html,
@@ -355,12 +362,15 @@
 											})
 											var map = new BMapGL.Map('tmpMap');
 											// map.getDistance(point1 ,point2);
-											var pointA = new BMapGL.Point(item[0].lng, item[0].lat); // 创建点坐标A
-											var pointB = new BMapGL.Point(item[1].lng, item[1].lat);
-											var distance = map.getDistance(pointA, pointB);
-											var disKm = (distance / 1000).toFixed(2) + "km";
-											console.log('disKm', disKm)
-											item.disKm = disKm
+											if(item[0] && item[1]){
+												var pointA = new BMapGL.Point(item[0].lng, item[0].lat); // 创建点坐标A
+												var pointB = new BMapGL.Point(item[1].lng, item[1].lat);
+												var distance = map.getDistance(pointA, pointB);
+												var disKm = (distance / 1000).toFixed(2) + "km";
+												console.log('disKm', disKm)
+												item.disKm = disKm
+											}
+											
 										}
 										
 									});
@@ -391,6 +401,10 @@
 							$.ligerDialog.error('暂无数据')
 							
 						}
+					},
+					error:function(err){
+						console.log('err',err)
+						$.ligerDialog.closeWaitting();
 					}
 				});
 			},
