@@ -13,7 +13,7 @@
 				overflow: auto;
 				margin: 0;
 				font-family: "微软雅黑";
-				background: #eee;
+				background: #f8f8f8;
 			}
 
 			#allmap {
@@ -62,7 +62,21 @@
 				/* padding: 4px; */
 			}
 			.xc-day-select {
-				color:rgb(64, 158, 255);
+				color:#fff;
+				border-radius: 32px;
+				background-color: rgb(64, 158, 255);
+
+			}
+			.sday-select {
+				background-color: #01AAEE;
+			}
+			.yearmonth {
+				position: absolute;
+				    width: 45px;
+				    left: -2px;
+				    height: 14px;
+				    top: 23px;
+				    opacity: 0;
 			}
 		</style>
 		<script type="text/javascript"
@@ -90,15 +104,21 @@
 					<span>{{deviceName}}</span>
 				</div>
 			</div>
-			<div style="padding:8px 16px;">
+			<div style="padding:8px;border-bottom: 1px solid rgb(221, 221, 221);background-color: #FFF;">
 				<div>
 					<!-- 请选择日期：<input class="xc-now" type="date" style="display: inline-block;" /> -->
-					<div style="text-align: center;display: inline-block;padding: 4px;">
+					<div style="text-align: center;display: inline-block;padding: 4px;position: relative;">
 						{{year}}年<br>
 						{{month}}月
+						<img src="http://daka.xixiaoli.com/webgl/img/calendar.png" style="width:16px;height:16px;position: relative;top:3px;" />
+						<input type="month" id="start" name="start"
+						       min="2021-01" :value="yearmonth" @input="changeValue" class="yearmonth">
 					</div>
-					<div style="overflow: auto;display: inline-block;vertical-align: top;width: calc(100% - 52px);">
-						<div  :style="{width:iwidth}">
+					<div class="sday" style="text-align: center;display: inline-block;padding: 4px; border-radius: 24px;">
+						<img @click="handleRecent" style="border-radius: 16px;width:30px;height:30px;display: inline-block;vertical-align: text-bottom;" src="http://daka.xixiaoli.com/webgl/img/recent.png" />
+					</div>
+					<div ref="dateRows" style="overflow: auto;display: inline-block;vertical-align: top;width: calc(100% - 94px);">
+						<div  class="dataRows"  :style="{width:iwidth}">
 							<div v-for="(item,index) in days" :class="{'xc-day':true,'xc-day-select':item.select}" :key="index" @click="handleDay(item,index)">
 								{{item.val}}
 							</div>
@@ -108,27 +128,33 @@
 			</div>
 			
 			<div>
-				<div v-for="(item,index) in rows" style="padding: 8px" :key="index">
-					<div v-for="(sub,sindex) in item" :key="sindex" class="xc-group">
-						<div class="sun">
-							<div v-for="(sun,sunindex) in sub" :key="sunindex">
-								<img :src="handleImg(sunindex)"
-									style="width:20px;height:20px;display: inline-block;vertical-align: top;    margin: 6px;" />
-								<div style="display: inline-block;vertical-align: top;">
-									<div style="color:#409eff">
-										<span>{{sun.gpsTime}}</span>
-										<label>{{sunindex == 0?'起点':'终点'}}</label>
+				<!-- <template v-if="rows && rows.length>0"> -->
+					<div  v-for="(item,index) in rows" style="padding: 8px" :key="index">
+						<div  v-for="(sub,sindex) in item" :key="sindex" class="xc-group">
+							<div class="sun">
+								<div v-for="(sun,sunindex) in sub" :key="sunindex">
+									<img :src="handleImg(sunindex)"
+										style="width:20px;height:20px;display: inline-block;vertical-align: top;    margin: 6px;" />
+									<div style="display: inline-block;vertical-align: top;width: calc(100% - 36px);">
+										<div style="color:#409eff">
+											<span>{{sun.gpsTime}}</span>
+											<label>{{sunindex == 0?'起点':'终点'}}</label>
+										</div>
+										<div>{{sun.locationName}}</div>
 									</div>
-									<div>{{sun.locationName}}</div>
 								</div>
 							</div>
-						</div>
-						<div class="sub-right" style="">
-							<img src="http://daka.xixiaoli.com/webgl/img/distance.png"
-								style="width:30x;height:30px;display: block;margin:0 auto;" />
-							{{sub.disKm}}
+							<div class="sub-right" style="">
+								<img src="http://daka.xixiaoli.com/webgl/img/distance.png"
+									style="width:30x;height:30px;display: block;margin:0 auto;" />
+								{{sub.disKm}}
+							</div>
 						</div>
 					</div>
+				<!-- </template> -->
+				
+				<div v-if="!rows.data || rows.data.length ==0">
+					<img style="width:200px;height:280px;margin:50px auto;display: block;" src="http://daka.xixiaoli.com/webgl/img/nodata.png" />
 				</div>
 			</div>
 		</div>
@@ -160,6 +186,9 @@
 		},
 		created() {
 			var that = this;
+			
+			this.imei = window.location.href.split('imei=')[1].split('&deviceName=')[0];
+			this.deviceName = decodeURI(window.location.href.split('imei=')[1].split('&deviceName=')[1])
 			this.main();
 			// $('.xc-now').on('input', function(e) {
 			// 	var changeValue = $(e.currentTarget).val();
@@ -167,15 +196,60 @@
 			// 	// debugger
 			// 	that.main(changeValue)
 			// });
-			this.imei = window.location.href.split('imei=')[1].split('&deviceName=')[0];
-			this.deviceName = decodeURI(window.location.href.split('imei=')[1].split('&deviceName=')[1])
+			// debugger
 			this.getDaysArr()
 		},
+		computed:{
+			yearmonth(){
+				return this.year + '-' + this.month
+			}
+		},
 		mounted() {
-			
+			this.$nextTick(()=>{
+				// debugger
+				// setTimeout(() => {
+				// 	// this.$refs.rightTable.scrollLeft = 1500;
+				// 	// $('.dataRows').scrollLeft((this.day + 10) * 42 )
+				// 	this.$refs['dateRows'].scrollLeft = (Number(this.day) +10) * 42
+				// }, 2000);
+				
+				this.$refs['dateRows'].scrollLeft = (Number(this.day) - 1 * 42 )
+			})
 		},
 		methods: {
+			changeValue(val){
+				console.log('val',val)
+				let tarValue = val.target.value;
+				this.year = tarValue.split('-')[0];
+				this.month = tarValue.split('-')[1];
+				this.getDaysArr(this.year,this.month);
+				let timeStr = this.year +'-'+ this.month+'-01';
+				this.main(timeStr)
+			},
+			handleRecent(){
+				this.days.forEach(sub=>{
+					sub.select = false
+				});
+				$('.sday').addClass('sday-select')
+				let sevenBefore = new Date().getTime() - 86400 * 7 * 1000;
+				let sevenTime = getNowFormatDate(sevenBefore)
+				console.log('sevenTime',sevenTime)
+				let param = {
+					startTime: sevenTime + ' 00:00:00',
+					endTime: now + ' 23:59:59',
+					imei: this.imei
+				};
+				
+				this.initXC(param)
+			},
 			handleDay(item,index){
+				this.$nextTick(()=>{
+					if(item.val>4){
+						this.$refs['dateRows'].scrollLeft = (Number(item.val) - 3) * 42 
+					}
+				})
+				
+				$('.sday').removeClass('sday-select')
 				this.days.forEach(sub=>{
 					if(sub.val == item.val){
 						sub.select = true
@@ -186,13 +260,20 @@
 				let timeStr = this.year +'-'+ (this.month<=9?'0'+this.month:this.month)+'-'+(item.val<=9?'0'+item.val:item.val)
 				this.main(timeStr)
 			},
-			getDaysArr(){
-				this.year = new Date().getFullYear()
-				this.month = new Date().getMonth()+1
-				this.day = new Date().getDate()
-				// this.days 
+			getDaysArr(year,month){
+				this.year = year?year:new Date().getFullYear()
+				this.month = month?Number(month):new Date().getMonth()+1
+				this.day = month?1:new Date().getDate()
+				this.days = [] 
 				let length = new Date(this.year, this.month, 0).getDate();
-				for (var i = length ; i>0 ; i--) {
+				// for (var i = length ; i>0 ; i--) {
+				// 	let obj = {
+				// 		val:i,
+				// 		select:this.day == i ?true:false
+				// 	}
+				// 	this.days.push(obj)
+				// }
+				for (var i = 1 ; i<=length ; i++) {
 					let obj = {
 						val:i,
 						select:this.day == i ?true:false
@@ -238,7 +319,7 @@
 							let param = {
 								startTime: time ? time +' 00:00:00' : now + ' 00:00:00',
 								endTime: time ? time + ' 23:59:59': now + ' 23:59:59',
-								imei: imei
+								imei: this.imei
 							};
 							that.initXC(param)
 							// initPosition()
@@ -249,6 +330,7 @@
 			},
 			initXC(param) {
 				var that = this;
+				$.ligerDialog.waitting('正在加载中,请稍候...');
 				$.ajax({
 					url: "http://www.huatiexft.com:8070/eqplapp2/jimiCar/getTravel.do?imei=" + param.imei +
 						"&startTime=" + param.startTime + "&endTime=" + param.endTime +
@@ -264,148 +346,50 @@
 							try {
 								let tmpdata = data;
 								// let tmpdata = JSON.parse(data);
-								console.log('tmpdata', tmpdata)
-								tmpdata.data.forEach(item => {
-									item.forEach(sub => {
-										that.getLocationName(sub)
-									})
-									var map = new BMapGL.Map('tmpMap');
-									// map.getDistance(point1 ,point2);
-									var pointA = new BMapGL.Point(item[0].lng, item[0]
-									.lat); // 创建点坐标A
-									var pointB = new BMapGL.Point(item[1].lng, item[1].lat);
-									var distance = map.getDistance(pointA, pointB);
-									var disKm = (distance / 1000).toFixed(2) + "km";
-									console.log('disKm', disKm)
-									item.disKm = disKm
-								});
-								setTimeout(() => {
-									that.rows = tmpdata
-								}, 500)
-
+								
+								if(tmpdata.data && tmpdata.data.length>0){
+									tmpdata.data.forEach(item => {
+										if(item && item.length>0){
+											item.forEach(sub => {
+												that.getLocationName(sub)
+											})
+											var map = new BMapGL.Map('tmpMap');
+											// map.getDistance(point1 ,point2);
+											var pointA = new BMapGL.Point(item[0].lng, item[0].lat); // 创建点坐标A
+											var pointB = new BMapGL.Point(item[1].lng, item[1].lat);
+											var distance = map.getDistance(pointA, pointB);
+											var disKm = (distance / 1000).toFixed(2) + "km";
+											console.log('disKm', disKm)
+											item.disKm = disKm
+										}
+										
+									});
+									// that.rows.push(tmpdata[0])
+									setTimeout(() => {
+										if(tmpdata && tmpdata.data && tmpdata.data[0] && tmpdata.data[0].length > 0){
+											that.rows = tmpdata
+										}else {
+											that.rows = {data:[]}
+										}
+										$.ligerDialog.closeWaitting();
+									}, 1000)
+								}else {
+									console.log('tmpdata', tmpdata)
+									that.rows = {data:[]}
+									$.ligerDialog.closeWaitting();
+								}
 								// initXCrows(tmpdata)
 							} catch (err) {
-								// let tmpdata = {
-								// 	"data": [
-								// 		[{
-								// 				"lng": "120.16225602167883",
-								// 				"lat": "32.48772934396526",
-								// 				"gpsTime": "2021-07-14 10:22:00",
-								// 				"gpsSpeed": "11.0",
-								// 				"posType": "1",
-								// 				"direction": "192",
-								// 				"mileage": "0.0"
-								// 			},
-								// 			{
-								// 				"lng": "120.06209358623599",
-								// 				"lat": "32.17972514773968",
-								// 				"gpsTime": "2021-07-14 11:18:22",
-								// 				"gpsSpeed": "0.0",
-								// 				"posType": "1",
-								// 				"direction": "53",
-								// 				"mileage": "0.0"
-								// 			}
-								// 		],
-								// 		[{
-								// 				"lng": "120.0620770047385",
-								// 				"lat": "32.18028220969862",
-								// 				"gpsTime": "2021-07-14 11:23:22",
-								// 				"gpsSpeed": "7.0",
-								// 				"posType": "1",
-								// 				"direction": "347",
-								// 				"mileage": "0.0"
-								// 			},
-								// 			{
-								// 				"lng": "120.1155193236153",
-								// 				"lat": "32.20135732540087",
-								// 				"gpsTime": "2021-07-14 11:42:23",
-								// 				"gpsSpeed": "0.0",
-								// 				"posType": "1",
-								// 				"direction": "81",
-								// 				"mileage": "0.0"
-								// 			}
-								// 		],
-								// 		[{
-								// 				"lng": "120.11654631300081",
-								// 				"lat": "32.201740033534534",
-								// 				"gpsTime": "2021-07-14 11:47:56",
-								// 				"gpsSpeed": "24.0",
-								// 				"posType": "1",
-								// 				"direction": "69",
-								// 				"mileage": "0.0"
-								// 			},
-								// 			{
-								// 				"lng": "120.11556338055352",
-								// 				"lat": "32.4499188042568",
-								// 				"gpsTime": "2021-07-14 12:20:13",
-								// 				"gpsSpeed": "0.0",
-								// 				"posType": "1",
-								// 				"direction": "258",
-								// 				"mileage": "0.0"
-								// 			}
-								// 		],
-								// 		[{
-								// 				"lng": "120.11497979676571",
-								// 				"lat": "32.449763856207355",
-								// 				"gpsTime": "2021-07-14 12:26:33",
-								// 				"gpsSpeed": "9.0",
-								// 				"posType": "1",
-								// 				"direction": "247",
-								// 				"mileage": "0.0"
-								// 			},
-								// 			{
-								// 				"lng": "120.17041168456045",
-								// 				"lat": "32.5236604649924",
-								// 				"gpsTime": "2021-07-14 12:54:03",
-								// 				"gpsSpeed": "2.0",
-								// 				"posType": "1",
-								// 				"direction": "181",
-								// 				"mileage": "0.0"
-								// 			}
-								// 		],
-								// 		[{
-								// 				"lng": "120.17018072798868",
-								// 				"lat": "32.52387826422413",
-								// 				"gpsTime": "2021-07-14 14:52:23",
-								// 				"gpsSpeed": "0.0",
-								// 				"posType": "1",
-								// 				"direction": "33",
-								// 				"mileage": "0.0"
-								// 			},
-								// 			{
-								// 				"lng": "120.17067013874997",
-								// 				"lat": "32.52388549916739",
-								// 				"gpsTime": "2021-07-14 15:05:45",
-								// 				"gpsSpeed": "0.0",
-								// 				"posType": "1",
-								// 				"direction": "124",
-								// 				"mileage": "0.0"
-								// 			}
-								// 		]
-								// 	]
-								// }
-								// console.log('error', err)
-								// tmpdata.data.forEach(item => {
-								// 	item.forEach(sub => {
-								// 		that.getLocationName(sub)
-								// 	})
-								// 	var map = new BMapGL.Map('tmpMap');
-								// 	// map.getDistance(point1 ,point2);
-								// 	var pointA = new BMapGL.Point(item[0].lng, item[0]
-								// 	.lat); // 创建点坐标A
-								// 	var pointB = new BMapGL.Point(item[1].lng, item[1].lat);
-								// 	var distance = map.getDistance(pointA, pointB);
-								// 	var disKm = (distance / 1000).toFixed(2) + "km";
-								// 	console.log('disKm', disKm)
-								// 	item.disKm = disKm
-								// });
-								// setTimeout(() => {
-								// 	that.rows = tmpdata
-								// }, 500)
-								$.ligerDialog.error('暂无数据')
+								console.log('err',err)
+								that.rows = {data:[]}
+								$.ligerDialog.closeWaitting();
+								// $.ligerDialog.error('暂无数据')
 							}
 						} else {
+							that.rows = {data:[]}
+							$.ligerDialog.closeWaitting();
 							$.ligerDialog.error('暂无数据')
+							
 						}
 					}
 				});
@@ -433,8 +417,13 @@
 	})
 
 
-	function getNowFormatDate() {
-		var date = new Date();
+	function getNowFormatDate(time) {
+		if(time){
+			var date = new Date(time);
+		}else {
+			var date = new Date();
+		}
+		
 		var seperator1 = "-";
 		var year = date.getFullYear();
 		var month = date.getMonth() + 1;
