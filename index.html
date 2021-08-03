@@ -58,8 +58,8 @@
 		},
 		success: function(data) {
 			// ?__user_session=738CB5F330B7F0A538A22F8CD30977A6
-			sessionStorage.setItem('__user_session', data.success)
-			sessionStorage.setItem('_userInfo', JSON.stringify(data))
+			localStorage.setItem('__user_session', data.success)
+			localStorage.setItem('_userInfo', JSON.stringify(data))
 			// let param = {
 			//   startTime:now + ' 00:00:00',
 			//   endTime:now + ' 23:59:59',
@@ -75,7 +75,7 @@
 		$.ajax({
 			// url: "http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCurrentPosition.do", 
 			url: "http://www.huatiexft.com:8070/eqplapp2/jimiCar/getAtteTrack.do?imei=" + param.imei +
-				"&startTime=" + param.startTime + "&endTime=" + param.endTime + "&__user_session=" + sessionStorage
+				"&startTime=" + param.startTime + "&endTime=" + param.endTime + "&__user_session=" + localStorage
 				.getItem('__user_session'),
 			// url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getAtteTrack.do?imei=868120251189699&startTime=2021-07-14 10:00:01&endTime=2021-07-14 11:25:01",
 			// url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCarList.do",
@@ -162,7 +162,7 @@
 	function initPosition() {
 		$.ajax({
 			url: "http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCurrentPosition.do?__user_session=" +
-				sessionStorage.getItem('__user_session'),
+				localStorage.getItem('__user_session'),
 			type: 'get',
 			contentType: 'application/json',
 			data: {},
@@ -188,7 +188,7 @@
 		});
 
 		// $.ajax({ 
-		//   url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getAtteTrack.do?imei=868120251189699&startTime=2021-07-14 10:00:01&endTime=2021-07-14 11:25:01&__user_session="+sessionStorage.getItem('__user_session'),
+		//   url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getAtteTrack.do?imei=868120251189699&startTime=2021-07-14 10:00:01&endTime=2021-07-14 11:25:01&__user_session="+localStorage.getItem('__user_session'),
 		//   type:'get',
 		//   contentType:'application/json',
 		//   data:{},
@@ -200,7 +200,7 @@
 		//   }
 		// });
 		// $.ajax({ 
-		//   url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCarList.do?__user_session="+sessionStorage.getItem('__user_session'), 
+		//   url:"http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCarList.do?__user_session="+localStorage.getItem('__user_session'), 
 		//   type:'get',
 		//   contentType:'application/json',
 		//   data:{},

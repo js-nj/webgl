@@ -298,7 +298,7 @@
 			},
 			main(time) {
 				var that = this;
-				if (sessionStorage.getItem('__user_session')) {
+				if (localStorage.getItem('__user_session')) {
 					let param = {
 						startTime: time ? time + ' 00:00:00': now + ' 00:00:00',
 						endTime: time ? time + ' 23:59:59': now + ' 23:59:59',
@@ -321,8 +321,8 @@
 						},
 						success: function(data) {
 							// ?__user_session=738CB5F330B7F0A538A22F8CD30977A6
-							sessionStorage.setItem('__user_session', data.success)
-							sessionStorage.setItem('_userInfo', JSON.stringify(data))
+							localStorage.setItem('__user_session', data.success)
+							localStorage.setItem('_userInfo', JSON.stringify(data))
 							let param = {
 								startTime: time ? time +' 00:00:00' : now + ' 00:00:00',
 								endTime: time ? time + ' 23:59:59': now + ' 23:59:59',
@@ -341,9 +341,8 @@
 				$.ajax({
 					url: "http://www.huatiexft.com:8070/eqplapp2/jimiCar/getTravel.do?imei=" + param.imei +
 						"&startTime=" + param.startTime + "&endTime=" + param.endTime +
-						"&__user_session=" + sessionStorage.getItem('__user_session'),
+						"&__user_session=" + localStorage.getItem('__user_session'),
 					type: 'get',
-					contentType: 'application/json',
 					data: {},
 					xhrFields: {
 						withCredentials: true
@@ -404,6 +403,33 @@
 						$.ligerDialog.closeWaitting();
 					}
 				});
+				
+				// $.ajax({
+				// 	url: "http://www.huatiexft.com:8070/eqplapp2/jimiCar/getCurrentPosition.do?__user_session=" +
+				// 		localStorage.getItem('__user_session'),
+				// 	type: 'get',
+				// 	contentType: 'application/json',
+				// 	data: {},
+				// 	xhrFields: {
+				// 		withCredentials: true
+				// 	},
+				// 	success: function(data) {
+				// 		if (data) {
+				// 			try {
+				// 				let tmpdata = JSON.parse(data);
+				// 				console.log('initAllCars', tmpdata)
+				// 				localStorage.setItem('cars',JSON.stringify(tmpdata.data))
+				// 				initAllCars(tmpdata)
+				// 			} catch (err) {
+				// 				$.ligerDialog.error('暂无数据')
+				// 			}
+				// 		} else {
+				// 			$.ligerDialog.error('暂无数据')
+				// 		}
+				// 		// console.log('data',data)
+				
+				// 	}
+				// });
 			},
 			initXCrows(row) {
 
