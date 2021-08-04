@@ -102,7 +102,7 @@
 				<span style="vertical-align: top;">行程</span>
 			</div>
 		</div>
-		
+	
       <!-- <div class="s-row">
         <span>车牌号：</span>
         <span>{{deviceName}}</span>
@@ -254,7 +254,7 @@ function initGJPage(param){
 function initSingleCars(data){
   var map = new BMapGL.Map('allmap');
   var point = new BMapGL.Point(data.lng, data.lat);
-  map.centerAndZoom(point, 7);
+  map.centerAndZoom(point, 14);
   // 创建小车图标
   var carImg = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/img/car0.png", new BMapGL.Size(26, 13));
   var automobile = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/img/car1.png", new BMapGL.Size(26, 13));
