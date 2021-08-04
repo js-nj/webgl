@@ -195,6 +195,7 @@
       powerValue: carData.powerValue,
       speed: carData.speed,
       status: carData.status,
+	  location:''
     },
     created(){
       this.getLocationName();
@@ -287,7 +288,7 @@ function initSingleCars(data){
 function initAllCars(data){
   var map = new BMapGL.Map('allmap');
   var point = new BMapGL.Point(data.data[0].lng, data.data[0].lat);
-  map.centerAndZoom(point, 7);
+  map.centerAndZoom(point, 18);
   // 创建小车图标
     var carImg = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/img/car0.png", new BMapGL.Size(26, 13));
   var automobile = new BMapGL.Icon("http://daka.xixiaoli.com/webgl/img/car1.png", new BMapGL.Size(26, 13));
